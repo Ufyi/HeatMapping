@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>画像ヒートマップ分析</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>画像ヒートマップ分析</h1>
+    <nav>
+      <button id="classic-mode-btn" class="header-btn active">通常モード</button>
+      <button id="step-mode-btn" class="header-btn">三段階モード</button>
+    </nav>
+  </header>
+
+  <!-- 共通：モード選択 -->
+  <div class="tabs">
+    <div class="tab active" data-mode="saliency">サリエンシー</div>
+    <div class="tab" data-mode="saturation">彩度</div>
+    <div class="tab" data-mode="brightness">明度</div>
+    <div class="tab" data-mode="contrast">コントラスト</div>
+  </div>
+
+  <!-- 通常モード -->
+  <div id="classic-page">
+    <input type="file" id="image-input" accept="image/*" multiple><br><br>
+    <button onclick="processImages()">ヒートマップを生成</button>
+    <button onclick="downloadAll()" id="download-btn">すべてダウンロード(zip)</button>
+    <div id="loading" style="display:none;">
+      <p>処理中...</p>
+      <div class="spinner"></div>
+    </div>
+    <div id="carousel-container">
+      <button id="prev-btn" class="carousel-btn">←</button>
+      <div id="carousel">
+        <div id="result-images"></div>
+      </div>
+      <button id="next-btn" class="carousel-btn">→</button>
+    </div>
+    <div id="notice-section">
+      <h2>注意事項</h2>
+      <p>・アップロードする画像は適切な形式（PNG, JPEGなど）である必要があります。</p>
+      <p>・処理には数秒かかる場合があります。画面が更新されるまでお待ちください。</p>
+      <p>・結果画像は一時的に保存され、ページをリロードすると削除されます。</p>
+      <p>・ダウンロードボタンをクリックすると、すべての結果画像がZIPファイルとしてダウンロードされます。</p>
+    </div>
+  </div>
+
+    <!-- 三段階モード -->
+  <div id="step-page" style="display:none;">
+    <input type="file" id="step-image-input" accept="image/*"><br>
+    <button id="step-start-btn">開始</button>
+
+    <!-- 1段階目：処理前 -->
+    <div id="step1" class="step-section" style="display:none;">
+      <div class="step-image-area left">
+        <div class="image-wrapper">
+          <img id="step-original-image" src="" alt="処理前画像">
+          <button class="fullscreen-btn" data-target="step-original-image">
+            <img src="sozai_cman_jp_20250516030109.png" alt="拡大">
+          </button>
+        </div>
+        <input type="text" id="feedback1" placeholder="処理前画像の感想を入力">
+      </div>
+      <button id="step1-next">次へ</button>
+    </div>
+
+    <!-- 2段階目：処理後 -->
+    <div id="step2" class="step-section" style="display:none;">
+      <div class="step-image-area right">
+        <div class="image-wrapper">
+          <img id="step-heatmap-image" src="" alt="ヒートマップ画像">
+          <button class="fullscreen-btn" data-target="step-heatmap-image">
+            <img src="sozai_cman_jp_20250516030109.png" alt="拡大">
+          </button>
+        </div>
+        <input type="text" id="feedback2" placeholder="ヒートマップ画像の感想を入力">
+      </div>
+      <button id="step2-next">次へ</button>
+    </div>
+
+    <!-- 3段階目：比較 -->
+    <div id="step3" class="step-section" style="display:none;">
+      <div class="step-image-area both">
+        <div class="image-wrapper">
+          <img id="step-original-image2" src="" alt="処理前画像">
+          <button class="fullscreen-btn" data-target="step-original-image2">
+            <img src="sozai_cman_jp_20250516030109.png" alt="拡大">
+          </button>
+        </div>
+        <div class="image-wrapper">
+          <img id="step-heatmap-image2" src="" alt="ヒートマップ画像">
+          <button class="fullscreen-btn" data-target="step-heatmap-image2">
+            <img src="sozai_cman_jp_20250516030109.png" alt="拡大">
+          </button>
+        </div>
+      </div>
+      <input type="text" id="feedback3" placeholder="見比べての感想を入力" style="width:60%;margin:20px auto;display:block;">
+      <button id="step3-finish">完了</button>
+    </div>
+
+    <!-- 完了画面 -->
+    <div id="step-finish" class="step-section" style="display:none;">
+      <h3>入力内容</h3>
+      <ul style="list-style:none; padding:0; text-align:center;">
+        <li>一回目: <span id="show-feedback1"></span></li>
+        <li>二回目: <span id="show-feedback2"></span></li>
+        <li>三回目: <span id="show-feedback3"></span></li>
+      </ul>
+      <button id="step-download-btn">まとめてダウンロード</button>
+      <div style="margin-top:16px; color:#888;">もう一度行うにはリロード(F5)で初期化してください</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
